@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Profile - HireConnect{% endblock %}
+
+{% block content %}
+<section style="background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);padding:3rem 0;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');opacity:0.3;"></div>
+  <div class="container" style="position:relative;z-index:1;text-align:center;color:#fff;">
+    <h1 style="font-size:2.5rem;font-weight:800;margin-bottom:0.5rem;text-shadow:0 2px 20px rgba(0,0,0,0.2);">My Profile</h1>
+    <p style="font-size:1.1rem;opacity:0.95;">Manage your professional information</p>
+  </div>
+</section>
+
+<div class="container" style="max-width:1200px;margin:2rem auto;padding:0 1.5rem;">
+  
+  <!-- Profile Header Card -->
+  <div id="profile-header" style="background:#fff;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,0.1);padding:3rem;margin-bottom:2rem;animation:fadeInUp 0.6s ease-out;">
+    <div style="display:flex;gap:2rem;align-items:start;flex-wrap:wrap;">
+      <div style="flex-shrink:0;">
+        <div id="profile-picture-container" style="width:120px;height:120px;border-radius:50%;background:linear-gradient(135deg,#667eea,#764ba2);display:flex;align-items:center;justify-content:center;color:#fff;font-size:3rem;font-weight:800;box-shadow:0 8px 24px rgba(102,126,234,0.3);">
+          <span id="profile-initials">{{ user.username.0|upper }}</span>
+        </div>
+      </div>
+      <div style="flex:1;min-width:300px;">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:1rem;flex-wrap:wrap;gap:1rem;">
+          <div>
+            <h2 id="display-full-name" style="font-size:2rem;font-weight:800;color:var(--gray-900);margin-bottom:0.5rem;">{{ user.username }}</h2>
+            <p id="display-designation" style="font-size:1.1rem;color:var(--gray-600);margin-bottom:0.5rem;">-</p>
+            <p id="display-location" style="color:var(--gray-500);"><span style="margin-right:0.5rem;">📍</span>-</p>
+          </div>
+          <button onclick="toggleEditMode()" id="edit-btn" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;cursor:pointer;font-weight:600;transition:all 0.3s;box-shadow:0 4px 12px rgba(102,126,234,0.3);">
+            ✏️ Edit Profile
+          </button>
+        </div>
+        <div id="display-summary" style="color:var(--gray-700);line-height:1.6;margin-top:1rem;">
+          <p>-</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Profile Form (Hidden by default) -->
+  <div id="edit-profile-form" style="display:none;background:#fff;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,0.1);padding:3rem;margin-bottom:2rem;">
+    <h3 style="font-size:1.5rem;font-weight:800;margin-bottom:2rem;color:var(--gray-900);">Edit Profile Information</h3>
+    <form id="profile-form" style="display:grid;gap:1.5rem;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+        <div>
+          <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Full Name</label>
+          <input type="text" id="full_name" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Phone</label>
+          <input type="tel" id="phone" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+        </div>
+      </div>
+      
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+        <div>
+          <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Designation</label>
+          <input type="text" id="designation" placeholder="e.g., Senior Developer" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Company</label>
+          <input type="text" id="company" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+        </div>
+      </div>
+      
+      <div>
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Location</label>
+        <input type="text" id="location" placeholder="City, Country" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+      </div>
+      
+      <div>
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Years of Experience</label>
+        <input type="number" id="experience_years" min="0" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+      </div>
+      
+      <div>
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Profile Summary</label>
+        <textarea id="profile_summary" rows="4" placeholder="Tell us about yourself..." style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;resize:vertical;"></textarea>
+      </div>
+      
+      <div>
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Skills (comma-separated)</label>
+        <input type="text" id="skills" placeholder="JavaScript, Python, React, Django" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+      </div>
+      
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;">
+        <div>
+          <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">LinkedIn URL</label>
+          <input type="url" id="linkedin_url" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+        </div>
+        <div>
+          <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">GitHub URL</label>
+          <input type="url" id="github_url" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+        </div>
+      </div>
+      
+      <div>
+        <label style="display:block;margin-bottom:0.5rem;font-weight:600;color:var(--gray-700);">Portfolio URL</label>
+        <input type="url" id="portfolio_url" style="width:100%;padding:0.75rem 1rem;border:2px solid var(--gray-300);border-radius:10px;font-size:1rem;">
+      </div>
+      
+      <div style="display:flex;gap:1rem;margin-top:1rem;">
+        <button type="submit" style="padding:1rem 2rem;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:12px;cursor:pointer;font-weight:600;font-size:1rem;transition:all 0.3s;box-shadow:0 4px 12px rgba(102,126,234,0.3);">
+          💾 Save Changes
+        </button>
+        <button type="button" onclick="toggleEditMode()" style="padding:1rem 2rem;background:var(--gray-200);color:var(--gray-700);border:none;border-radius:12px;cursor:pointer;font-weight:600;font-size:1rem;transition:all 0.3s;">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Tabs -->
+  <div style="background:#fff;border-radius:24px;box-shadow:0 10px 40px rgba(0,0,0,0.1);overflow:hidden;animation:fadeInUp 0.6s ease-out 0.2s backwards;">
+    <div style="display:flex;border-bottom:2px solid var(--gray-200);overflow-x:auto;">
+      <button class="tab-btn active" onclick="switchTab('education')" style="padding:1.25rem 2rem;background:none;border:none;cursor:pointer;font-weight:600;font-size:1rem;color:var(--gray-600);border-bottom:3px solid transparent;transition:all 0.3s;white-space:nowrap;">
+        🎓 Education
+      </button>
+      <button class="tab-btn" onclick="switchTab('experience')" style="padding:1.25rem 2rem;background:none;border:none;cursor:pointer;font-weight:600;font-size:1rem;color:var(--gray-600);border-bottom:3px solid transparent;transition:all 0.3s;white-space:nowrap;">
+        💼 Experience
+      </button>
+      <button class="tab-btn" onclick="switchTab('certifications')" style="padding:1.25rem 2rem;background:none;border:none;cursor:pointer;font-weight:600;font-size:1rem;color:var(--gray-600);border-bottom:3px solid transparent;transition:all 0.3s;white-space:nowrap;">
+        🏆 Certifications
+      </button>
+      <button class="tab-btn" onclick="switchTab('skills')" style="padding:1.25rem 2rem;background:none;border:none;cursor:pointer;font-weight:600;font-size:1rem;color:var(--gray-600);border-bottom:3px solid transparent;transition:all 0.3s;white-space:nowrap;">
+        ⚡ Skills
+      </button>
+    </div>
+
+    <!-- Tab Content -->
+    <div style="padding:2.5rem;">
+      
+      <!-- Education Tab -->
+      <div id="education-tab" class="tab-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+          <h3 style="font-size:1.5rem;font-weight:800;color:var(--gray-900);">Education</h3>
+          <button onclick="showAddEducationModal()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;transition:all 0.3s;">
+            + Add Education
+          </button>
+        </div>
+        <div id="education-list"></div>
+      </div>
+
+      <!-- Experience Tab -->
+      <div id="experience-tab" class="tab-content" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+          <h3 style="font-size:1.5rem;font-weight:800;color:var(--gray-900);">Work Experience</h3>
+          <button onclick="showAddExperienceModal()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;transition:all 0.3s;">
+            + Add Experience
+          </button>
+        </div>
+        <div id="experience-list"></div>
+      </div>
+
+      <!-- Certifications Tab -->
+      <div id="certifications-tab" class="tab-content" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
+          <h3 style="font-size:1.5rem;font-weight:800;color:var(--gray-900);">Certifications</h3>
+          <button onclick="showAddCertificationModal()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#fa709a,#fee140);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;transition:all 0.3s;">
+            + Add Certification
+          </button>
+        </div>
+        <div id="certifications-list"></div>
+      </div>
+
+      <!-- Skills Tab -->
+      <div id="skills-tab" class="tab-content" style="display:none;">
+        <h3 style="font-size:1.5rem;font-weight:800;color:var(--gray-900);margin-bottom:2rem;">Skills</h3>
+        <div id="skills-list" style="display:flex;flex-wrap:wrap;gap:1rem;"></div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<style>
+.tab-btn.active {
+  color:var(--primary);
+  border-bottom-color:var(--primary);
+}
+
+.tab-btn:hover {
+  color:var(--primary);
+  background:rgba(102,126,234,0.05);
+}
+
+input:focus, textarea:focus {
+  outline:none;
+  border-color:var(--primary);
+  box-shadow:0 0 0 4px rgba(102,126,234,0.1);
+}
+</style>
+
+<script src="{% static 'js/profile.js' %}?v=2"></script>
+{% endblock %}

@@ -1,0 +1,452 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mock Interview - HireConnect{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/animations.css' %}?v=1">
+<style>
+    .interview-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 20px;
+    }
+    
+    .hero-section {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 60px 40px;
+        border-radius: 20px;
+        color: white;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        animation: float 6s ease-in-out infinite;
+    }
+    
+    .card-modern {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        padding: 40px;
+        margin-bottom: 30px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-modern:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+    }
+    
+    .difficulty-option {
+        position: relative;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .difficulty-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+    
+    .difficulty-option input[type="radio"]:checked + .difficulty-card {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        transform: scale(1.05);
+    }
+    
+    .difficulty-card {
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        text-align: center;
+    }
+    
+    .difficulty-card:hover {
+        border-color: #667eea;
+        transform: translateY(-3px);
+    }
+    
+    .btn-primary-modern {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 18px 40px;
+        border: none;
+        border-radius: 12px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-primary-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-primary-modern:active {
+        transform: translateY(0);
+    }
+    
+    .progress-container {
+        background: #f5f5f5;
+        height: 12px;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
+        transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .progress-fill::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+        animation: shimmer 2s infinite;
+    }
+    
+    .question-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 40px;
+        border-radius: 16px;
+        border-left: 6px solid #667eea;
+        animation: slideInRight 0.6s ease-out;
+    }
+    
+    .category-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .answer-textarea {
+        width: 100%;
+        padding: 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 12px;
+        font-family: inherit;
+        font-size: 16px;
+        resize: vertical;
+        transition: all 0.3s ease;
+    }
+    
+    .answer-textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+    
+    .score-display {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px;
+        border-radius: 20px;
+        text-align: center;
+        animation: scaleIn 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .score-number {
+        font-size: 96px;
+        font-weight: 800;
+        line-height: 1;
+        animation: celebration 1s ease-out;
+    }
+    
+    .celebration-emoji {
+        font-size: 80px;
+        animation: bounce 1s ease-in-out infinite;
+    }
+    
+    .history-card {
+        border: 2px solid #e0e0e0;
+        padding: 25px;
+        border-radius: 12px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    .history-card:hover {
+        border-color: #667eea;
+        transform: translateX(5px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    }
+    
+    .timer-display {
+        background: rgba(102, 126, 234, 0.1);
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        color: #667eea;
+        animation: pulse 2s ease-in-out infinite;
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+        padding: 25px;
+        border-radius: 12px;
+        border-left: 4px solid #667eea;
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(17, 153, 142, 0.4);
+    }
+    
+    select, input[type="text"] {
+        width: 100%;
+        padding: 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s ease;
+    }
+    
+    select:focus, input[type="text"]:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+    }
+    
+    .fade-in {
+        animation: fadeIn 0.6s ease-out;
+    }
+    
+    .slide-in-right {
+        animation: slideInRight 0.6s ease-out;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="interview-container">
+    <!-- Hero Section -->
+    <div class="hero-section fade-in">
+        <div style="position: relative; z-index: 1;">
+            <h1 style="margin: 0 0 15px 0; font-size: 48px; font-weight: 800;">🎯 Mock Interview Practice</h1>
+            <p style="margin: 0; font-size: 20px; opacity: 0.95;">Prepare for your next interview with AI-powered practice sessions</p>
+        </div>
+    </div>
+    
+    <!-- Start New Interview Section -->
+    <div id="startSection" class="card-modern fade-in">
+        <h2 style="margin-bottom: 30px; font-size: 32px; font-weight: 700;">Start New Mock Interview</h2>
+        
+        <form id="startInterviewForm" style="max-width: 700px;">
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 12px; font-size: 18px;">Job Category</label>
+                <select id="jobCategory" required>
+                    <option value="">Select a category...</option>
+                    <option value="Software Developer">💻 Software Developer</option>
+                    <option value="Data Scientist">📊 Data Scientist</option>
+                    <option value="Product Manager">📱 Product Manager</option>
+                    <option value="UI/UX Designer">🎨 UI/UX Designer</option>
+                    <option value="DevOps Engineer">⚙️ DevOps Engineer</option>
+                    <option value="Business Analyst">📈 Business Analyst</option>
+                    <option value="Marketing Manager">📢 Marketing Manager</option>
+                    <option value="Sales Representative">💼 Sales Representative</option>
+                </select>
+            </div>
+            
+            <div style="margin-bottom: 30px;">
+                <label style="display: block; font-weight: 600; margin-bottom: 15px; font-size: 18px;">Difficulty Level</label>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px;">
+                    <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="easy" required>
+                        <div class="difficulty-card">
+                            <div style="font-size: 32px; margin-bottom: 10px;">🟢</div>
+                            <div style="font-weight: 700; font-size: 18px; color: #28a745; margin-bottom: 5px;">Easy</div>
+                            <div style="font-size: 13px; color: #666;">Entry level</div>
+                        </div>
+                    </label>
+                    <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="medium" checked required>
+                        <div class="difficulty-card">
+                            <div style="font-size: 32px; margin-bottom: 10px;">🟡</div>
+                            <div style="font-weight: 700; font-size: 18px; color: #ffc107; margin-bottom: 5px;">Medium</div>
+                            <div style="font-size: 13px; color: #666;">Mid level</div>
+                        </div>
+                    </label>
+                    <label class="difficulty-option">
+                        <input type="radio" name="difficulty" value="hard" required>
+                        <div class="difficulty-card">
+                            <div style="font-size: 32px; margin-bottom: 10px;">🔴</div>
+                            <div style="font-weight: 700; font-size: 18px; color: #dc3545; margin-bottom: 5px;">Hard</div>
+                            <div style="font-size: 13px; color: #666;">Senior level</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="info-box" style="margin-bottom: 30px;">
+                <h4 style="margin: 0 0 15px 0; font-size: 18px; font-weight: 700;">✨ What to expect:</h4>
+                <ul style="margin: 0; padding-left: 25px; color: #555; line-height: 1.8;">
+                    <li>5 carefully selected interview questions</li>
+                    <li>Mix of technical & behavioral questions</li>
+                    <li>AI-powered feedback on your answers</li>
+                    <li>Performance score (0-100)</li>
+                    <li>Estimated time: 20-30 minutes</li>
+                </ul>
+            </div>
+            
+            <button type="submit" class="btn-primary-modern" style="width: 100%;">
+                🚀 Start Mock Interview
+            </button>
+        </form>
+    </div>
+    
+    <!-- Interview Session Section (Hidden initially) -->
+    <div id="interviewSection" style="display: none;">
+        <div class="card-modern slide-in-right">
+            <!-- Progress Bar -->
+            <div style="margin-bottom: 40px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <span style="font-weight: 700; font-size: 18px;">
+                        Question <span id="currentQuestion" style="color: #667eea;">1</span> of <span id="totalQuestions">5</span>
+                    </span>
+                    <span class="timer-display">
+                        ⏱️ <span id="timer">00:00</span>
+                    </span>
+                </div>
+                <div class="progress-container">
+                    <div id="progressBar" class="progress-fill" style="width: 20%;"></div>
+                </div>
+            </div>
+            
+            <!-- Question Display -->
+            <div id="questionCard" class="question-card">
+                <div style="margin-bottom: 20px;">
+                    <span id="questionCategory" class="category-badge">Technical</span>
+                </div>
+                <h3 id="questionText" style="margin: 0; color: #2d3748; line-height: 1.6; font-size: 24px; font-weight: 600;">Loading question...</h3>
+            </div>
+            
+            <!-- Answer Input -->
+            <div style="margin: 40px 0;">
+                <label style="display: block; font-weight: 700; margin-bottom: 15px; font-size: 18px;">Your Answer:</label>
+                <textarea id="answerInput" class="answer-textarea" placeholder="Type your answer here... Be specific and provide examples." rows="10"></textarea>
+                <div style="display: flex; justify-content: space-between; margin-top: 12px; color: #666; font-size: 14px;">
+                    <span id="charCount" style="font-weight: 600;">0 characters</span>
+                    <span style="opacity: 0.8;">💡 Tip: Aim for 100-300 words</span>
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 20px;">
+                <button id="skipBtn" class="btn-secondary" style="flex: 1;">
+                    ⏭️ Skip Question
+                </button>
+                <button id="nextBtn" class="btn-success" style="flex: 2;">
+                    Submit & Next →
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Results Section (Hidden initially) -->
+    <div id="resultsSection" style="display: none;">
+        <div class="card-modern fade-in">
+            <div style="text-align: center;">
+                <div class="celebration-emoji">🎉</div>
+                <h2 style="margin: 20px 0 10px 0; font-size: 36px; font-weight: 800;">Interview Complete!</h2>
+                <p style="color: #666; margin-bottom: 40px; font-size: 18px;">Great job! Here's your performance summary:</p>
+                
+                <!-- Score Display -->
+                <div class="score-display" style="margin-bottom: 40px;">
+                    <div style="font-size: 20px; margin-bottom: 15px; opacity: 0.95; font-weight: 600;">Your Score</div>
+                    <div class="score-number" id="finalScore">--</div>
+                    <div style="font-size: 28px; opacity: 0.95; margin-top: 10px; font-weight: 600;">out of 100</div>
+                </div>
+                
+                <!-- Feedback -->
+                <div style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 40px; border-radius: 16px; text-align: left; margin-bottom: 40px; border-left: 6px solid #667eea;">
+                    <h3 style="margin-top: 0; font-size: 24px; font-weight: 700; color: #2d3748;">📝 AI Feedback:</h3>
+                    <div id="aiFeedback" style="white-space: pre-wrap; line-height: 1.9; color: #4a5568; font-size: 16px;">Loading feedback...</div>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <button onclick="location.reload()" class="btn-primary-modern">
+                        🔄 Start New Interview
+                    </button>
+                    <button onclick="window.location.href='/accounts/dashboard/'" class="btn-success">
+                        📊 Go to Dashboard
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Previous Interviews -->
+    <div class="card-modern fade-in">
+        <h2 style="margin-bottom: 30px; font-size: 28px; font-weight: 700;">📊 Your Previous Interviews</h2>
+        <div id="previousInterviews">
+            <div style="text-align: center; padding: 60px 20px;">
+                <div class="spinner" style="margin: 0 auto 20px;"></div>
+                <p style="color: #666; font-size: 16px;">Loading your interview history...</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/mock-interview.js' %}?v=2"></script>
+{% endblock %}

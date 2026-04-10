@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}AI Cover Letter - HireConnect{% endblock %}
+
+{% block content %}
+<section style="background:linear-gradient(135deg,#f093fb 0%,#f5576c 100%);padding:4rem 0;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');opacity:0.3;"></div>
+  <div class="container" style="position:relative;z-index:1;text-align:center;color:#fff;">
+    <div style="display:inline-block;background:rgba(255,255,255,0.2);padding:1rem 2rem;border-radius:50px;margin-bottom:1.5rem;backdrop-filter:blur(10px);animation:fadeInUp 0.6s ease-out;">
+      <span style="font-size:2.5rem;">📝</span>
+    </div>
+    <h1 style="font-size:3rem;font-weight:800;margin-bottom:1rem;animation:fadeInUp 0.6s ease-out 0.1s backwards;text-shadow:0 2px 20px rgba(0,0,0,0.2);">AI Cover Letter Generator</h1>
+    <p style="font-size:1.25rem;opacity:0.95;animation:fadeInUp 0.6s ease-out 0.2s backwards;">Create professional cover letters in seconds with AI</p>
+  </div>
+</section>
+
+<div class="container" style="max-width:900px;margin:-3rem auto 3rem;padding:0 1.5rem;position:relative;z-index:10;">
+  <div style="background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.15);padding:3rem;animation:fadeInUp 0.6s ease-out 0.3s backwards;">
+    
+    <!-- Quick Start Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.5rem;margin-bottom:3rem;">
+      <div style="background:linear-gradient(135deg,#f093fb,#f5576c);padding:2rem;border-radius:16px;text-align:center;color:#fff;box-shadow:0 8px 20px rgba(240,147,251,0.3);animation:fadeInUp 0.6s ease-out 0.4s backwards;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">✨</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">AI-Powered</h3>
+        <p style="opacity:0.9;font-size:0.9rem;">Advanced AI creates personalized letters</p>
+      </div>
+      <div style="background:linear-gradient(135deg,#4facfe,#00f2fe);padding:2rem;border-radius:16px;text-align:center;color:#fff;box-shadow:0 8px 20px rgba(79,172,254,0.3);animation:fadeInUp 0.6s ease-out 0.5s backwards;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">⚡</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">Instant Results</h3>
+        <p style="opacity:0.9;font-size:0.9rem;">Get your cover letter in seconds</p>
+      </div>
+      <div style="background:linear-gradient(135deg,#fa709a,#fee140);padding:2rem;border-radius:16px;text-align:center;color:#fff;box-shadow:0 8px 20px rgba(250,112,154,0.3);animation:fadeInUp 0.6s ease-out 0.6s backwards;">
+        <div style="font-size:2.5rem;margin-bottom:1rem;">🎯</div>
+        <h3 style="font-weight:700;margin-bottom:0.5rem;">Job-Specific</h3>
+        <p style="opacity:0.9;font-size:0.9rem;">Tailored to your target position</p>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form id="cover-letter-form" style="display:grid;gap:1.5rem;">
+      <div style="animation:fadeInUp 0.6s ease-out 0.7s backwards;">
+        <label style="display:block;margin-bottom:0.75rem;font-weight:600;color:var(--gray-700);font-size:1rem;">
+          Job Title
+        </label>
+        <input type="text" id="job-title" placeholder="e.g., Senior Software Developer" required
+               style="width:100%;padding:1rem 1.5rem;border:2px solid var(--gray-300);border-radius:14px;font-size:1rem;transition:all 0.3s;">
+      </div>
+
+      <div style="animation:fadeInUp 0.6s ease-out 0.8s backwards;">
+        <label style="display:block;margin-bottom:0.75rem;font-weight:600;color:var(--gray-700);font-size:1rem;">
+          Company Name
+        </label>
+        <input type="text" id="company-name" placeholder="e.g., TechCorp Inc." required
+               style="width:100%;padding:1rem 1.5rem;border:2px solid var(--gray-300);border-radius:14px;font-size:1rem;transition:all 0.3s;">
+      </div>
+
+      <button type="submit" id="generate-btn"
+              style="padding:1.25rem 2rem;background:linear-gradient(135deg,#f093fb,#f5576c);color:#fff;border:none;border-radius:14px;cursor:pointer;font-weight:600;font-size:1.1rem;transition:all 0.3s;box-shadow:0 4px 15px rgba(240,147,251,0.3);animation:fadeInUp 0.6s ease-out 0.9s backwards;position:relative;overflow:hidden;">
+        <span id="generate-text">✨ Generate Cover Letter</span>
+        <span id="generate-loading" style="display:none;">
+          <span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Generating...
+        </span>
+      </button>
+    </form>
+
+    <!-- Result Area -->
+    <div id="cover-letter-result" style="margin-top:2.5rem;display:none;animation:fadeInUp 0.5s ease-out;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem;">
+        <h2 style="font-size:1.75rem;font-weight:800;color:var(--gray-900);">Your Cover Letter</h2>
+        <button onclick="copyToClipboard()" style="padding:0.75rem 1.5rem;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:600;transition:all 0.3s;">
+          📋 Copy
+        </button>
+      </div>
+      <div id="cover-letter-content"
+           style="background:linear-gradient(180deg,#f8fafc 0%,#fff 100%);padding:2.5rem;border-radius:16px;white-space:pre-wrap;line-height:1.8;max-height:500px;overflow-y:auto;border:2px solid var(--gray-200);box-shadow:0 4px 12px rgba(0,0,0,0.05);"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+input:focus {
+  outline:none;
+  border-color:#f5576c;
+  box-shadow:0 0 0 4px rgba(245,87,108,0.1);
+}
+
+#generate-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(240,147,251,0.4);
+}
+
+@keyframes spin {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+</style>
+
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function copyToClipboard() {
+  const content = document.getElementById('cover-letter-content').textContent;
+  navigator.clipboard.writeText(content).then(() => {
+    alert('Cover letter copied to clipboard!');
+  });
+}
+
+document.getElementById('cover-letter-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const jobTitle = document.getElementById('job-title').value;
+  const companyName = document.getElementById('company-name').value;
+
+  document.getElementById('generate-text').style.display = 'none';
+  document.getElementById('generate-loading').style.display = 'inline';
+  document.getElementById('generate-btn').disabled = true;
+
+  try {
+    const response = await fetch('/api/ai/cover-letters/generate/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ job_title: jobTitle, company_name: companyName })
+    });
+    const data = await response.json();
+    document.getElementById('cover-letter-content').textContent = data.content;
+    document.getElementById('cover-letter-result').style.display = 'block';
+    document.getElementById('cover-letter-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  } catch (error) {
+    console.error('Error generating cover letter:', error);
+    alert('Failed to generate cover letter. Please try again.');
+  } finally {
+    document.getElementById('generate-text').style.display = 'inline';
+    document.getElementById('generate-loading').style.display = 'none';
+    document.getElementById('generate-btn').disabled = false;
+  }
+});
+</script>
+{% endblock %}

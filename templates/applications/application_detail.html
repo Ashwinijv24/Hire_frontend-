@@ -1,0 +1,618 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Application Details - HireConnect{% endblock %}
+
+{% block content %}
+<div class="application-detail-container">
+    <div class="detail-header">
+        <a href="{% url 'applications:my-applications' %}" class="back-link">← Back to Applications</a>
+        <h1>{{ application.job.title }}</h1>
+        <p class="company">{{ application.job.company.name }}</p>
+    </div>
+
+    <div class="detail-content">
+        <!-- Left Column: Application Info -->
+        <div class="detail-left">
+            <!-- Status Card -->
+            <div class="status-card">
+                <h3>Application Status</h3>
+                <div class="status-display">
+                    <span class="status-badge status-{{ application.status }}">
+                        {{ application.get_status_display }}
+                    </span>
+                </div>
+                <div class="status-info">
+                    <div class="info-item">
+                        <span class="label">Applied:</span>
+                        <span class="value">{{ application.applied_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Last Updated:</span>
+                        <span class="value">{{ application.updated_at|date:"M d, Y H:i" }}</span>
+                    </div>
+                    {% if application.response_time_hours %}
+                        <div class="info-item">
+                            <span class="label">Response Time:</span>
+                            <span class="value">{{ application.response_time_hours }} hours</span>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Job Details Card -->
+            <div class="job-details-card">
+                <h3>Job Details</h3>
+                <div class="job-info">
+                    <div class="info-item">
+                        <span class="label">Position:</span>
+                        <span class="value">{{ application.job.title }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Company:</span>
+                        <span class="value">{{ application.job.company.name }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Location:</span>
+                        <span class="value">{{ application.job.location }}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">Employment Type:</span>
+                        <span class="value">{{ application.job.get_employment_type_display }}</span>
+                    </div>
+                    {% if application.job.salary_min and application.job.salary_max %}
+                        <div class="info-item">
+                            <span class="label">Salary Range:</span>
+                            <span class="value">${{ application.job.salary_min|floatformat:0 }} - ${{ application.job.salary_max|floatformat:0 }}</span>
+                        </div>
+                    {% endif %}
+                    <div class="info-item">
+                        <span class="label">Remote:</span>
+                        <span class="value">{% if application.job.is_remote %}Yes{% else %}No{% endif %}</span>
+                    </div>
+                </div>
+                <a href="{{ application.job.get_absolute_url }}" class="btn btn-secondary">View Full Job</a>
+            </div>
+
+            <!-- Application Documents -->
+            <div class="documents-card">
+                <h3>Your Application</h3>
+                {% if application.resume %}
+                    <div class="document-item">
+                        <div class="document-icon">📄</div>
+                        <div class="document-info">
+                            <div class="document-name">Resume</div>
+                            <div class="document-size">{{ application.resume.size|filesizeformat }}</div>
+                        </div>
+                        <a href="{{ application.resume.url }}" class="btn btn-small" download>Download</a>
+                    </div>
+                {% endif %}
+                {% if application.cover_letter %}
+                    <div class="document-item">
+                        <div class="document-icon">📝</div>
+                        <div class="document-info">
+                            <div class="document-name">Cover Letter</div>
+                        </div>
+                        <button class="btn btn-small" onclick="toggleCoverLetter()">View</button>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Right Column: Timeline & Messages -->
+        <div class="detail-right">
+            <!-- Application Timeline -->
+            <div class="timeline-card">
+                <h3>Application Timeline</h3>
+                <div class="timeline">
+                    <div class="timeline-step {% if application.status in 'pending,reviewing,shortlisted,interview,rejected,hired' %}completed{% endif %}">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Application Submitted</div>
+                            <div class="timeline-date">{{ application.applied_at|date:"M d, Y" }}</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step {% if application.status in 'reviewing,shortlisted,interview,rejected,hired' %}completed{% endif %}">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Under Review</div>
+                            <div class="timeline-date">Employer reviewing your application</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step {% if application.status in 'shortlisted,interview,hired' %}completed{% endif %}">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Shortlisted</div>
+                            <div class="timeline-date">You've been selected for next round</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step {% if application.status in 'interview,hired' %}completed{% endif %}">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Interview Scheduled</div>
+                            <div class="timeline-date">Interview details will be shared</div>
+                        </div>
+                    </div>
+
+                    <div class="timeline-step {% if application.status == 'hired' %}completed{% endif %}">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-title">Hired</div>
+                            <div class="timeline-date">Congratulations!</div>
+                        </div>
+                    </div>
+
+                    {% if application.status == 'rejected' %}
+                        <div class="timeline-step completed rejected">
+                            <div class="timeline-marker"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-title">Application Rejected</div>
+                                <div class="timeline-date">{{ application.updated_at|date:"M d, Y" }}</div>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Messages Section -->
+            {% if messages %}
+                <div class="messages-card">
+                    <h3>Messages from Employer</h3>
+                    <div class="messages-list">
+                        {% for message in messages %}
+                            {% if not message.is_internal %}
+                                <div class="message-item">
+                                    <div class="message-header">
+                                        <div class="message-sender">{{ message.sender.get_full_name|default:message.sender.username }}</div>
+                                        <div class="message-date">{{ message.created_at|date:"M d, Y H:i" }}</div>
+                                    </div>
+                                    <div class="message-content">
+                                        {{ message.message|linebreaks }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+
+            <!-- Next Steps -->
+            <div class="next-steps-card">
+                <h3>What's Next?</h3>
+                <div class="next-steps">
+                    {% if application.status == 'pending' %}
+                        <p>Your application has been submitted. The employer will review it and get back to you soon.</p>
+                    {% elif application.status == 'reviewing' %}
+                        <p>Your application is being reviewed by the employer. We'll notify you as soon as there's an update.</p>
+                    {% elif application.status == 'shortlisted' %}
+                        <p>Great news! You've been shortlisted. The employer will contact you with next steps.</p>
+                    {% elif application.status == 'interview' %}
+                        <p>An interview has been scheduled. Check your email for details and prepare accordingly.</p>
+                    {% elif application.status == 'rejected' %}
+                        <p>Thank you for your interest. While you weren't selected this time, we encourage you to apply for other positions.</p>
+                    {% elif application.status == 'hired' %}
+                        <p>Congratulations! You've been hired! Check your email for onboarding details.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cover Letter Modal -->
+<div id="coverLetterModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeCoverLetter()">&times;</span>
+        <h2>Cover Letter</h2>
+        <div class="cover-letter-text">
+            {{ application.cover_letter|linebreaks }}
+        </div>
+    </div>
+</div>
+
+<style>
+.application-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+.detail-header {
+    margin-bottom: 40px;
+}
+
+.back-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.detail-header h1 {
+    font-size: 32px;
+    font-weight: 800;
+    color: #333;
+    margin: 10px 0 5px 0;
+}
+
+.detail-header .company {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+}
+
+.detail-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+/* Cards */
+.status-card,
+.job-details-card,
+.documents-card,
+.timeline-card,
+.messages-card,
+.next-steps-card {
+    background: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+}
+
+.status-card h3,
+.job-details-card h3,
+.documents-card h3,
+.timeline-card h3,
+.messages-card h3,
+.next-steps-card h3 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+    margin: 0 0 20px 0;
+}
+
+/* Status Display */
+.status-display {
+    margin-bottom: 20px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+}
+
+.status-badge.status-pending {
+    background: #ffc107;
+}
+
+.status-badge.status-reviewing {
+    background: #0066cc;
+}
+
+.status-badge.status-shortlisted {
+    background: #28a745;
+}
+
+.status-badge.status-interview {
+    background: #9c27b0;
+}
+
+.status-badge.status-rejected {
+    background: #dc3545;
+}
+
+.status-badge.status-hired {
+    background: #00aa00;
+}
+
+/* Info Items */
+.status-info,
+.job-info {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.info-item {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+}
+
+.info-item .label {
+    font-size: 12px;
+    color: #999;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.info-item .value {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+/* Documents */
+.document-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.document-icon {
+    font-size: 24px;
+}
+
+.document-info {
+    flex: 1;
+}
+
+.document-name {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.document-size {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Timeline */
+.timeline {
+    position: relative;
+    padding-left: 30px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e0e0e0;
+}
+
+.timeline-step {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -30px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    border: 3px solid white;
+}
+
+.timeline-step.completed .timeline-marker {
+    background: #28a745;
+}
+
+.timeline-step.completed.rejected .timeline-marker {
+    background: #dc3545;
+}
+
+.timeline-title {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 4px;
+}
+
+.timeline-date {
+    font-size: 12px;
+    color: #999;
+}
+
+/* Messages */
+.messages-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.message-item {
+    background: #f9f9f9;
+    border-left: 3px solid #007bff;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.message-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.message-sender {
+    font-weight: 600;
+    color: #333;
+}
+
+.message-date {
+    font-size: 12px;
+    color: #999;
+}
+
+.message-content {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Next Steps */
+.next-steps {
+    background: #f0f7ff;
+    border-left: 3px solid #007bff;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.next-steps p {
+    margin: 0;
+    color: #333;
+    line-height: 1.6;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0056b3;
+}
+
+.btn-secondary {
+    background: #f0f0f0;
+    color: #333;
+    width: 100%;
+    text-align: center;
+    margin-top: 15px;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+.btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.close {
+    color: #999;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.cover-letter-text {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    line-height: 1.8;
+    white-space: pre-wrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .detail-content {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-header h1 {
+        font-size: 24px;
+    }
+
+    .info-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+}
+
+function toggleCoverLetter() {
+    document.getElementById('coverLetterModal').style.display = 'block';
+}
+
+function closeCoverLetter() {
+    document.getElementById('coverLetterModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('coverLetterModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</style>
+
+<script>
+function toggleCoverLetter() {
+    document.getElementById('coverLetterModal').style.display = 'block';
+}
+
+function closeCoverLetter() {
+    document.getElementById('coverLetterModal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('coverLetterModal');
+    if (event.target == modal) {
+        modal.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}

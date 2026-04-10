@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Salary Insights - HireConnect{% endblock %}
+
+{% block content %}
+<section style="background:linear-gradient(135deg,#4facfe 0%,#00f2fe 100%);padding:4rem 0;position:relative;overflow:hidden;">
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;background:url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');opacity:0.3;"></div>
+  <div class="container" style="position:relative;z-index:1;text-align:center;color:#fff;">
+    <div style="display:inline-block;background:rgba(255,255,255,0.2);padding:1rem 2rem;border-radius:50px;margin-bottom:1.5rem;backdrop-filter:blur(10px);animation:fadeInUp 0.6s ease-out;">
+      <span style="font-size:2.5rem;">💰</span>
+    </div>
+    <h1 style="font-size:3rem;font-weight:800;margin-bottom:1rem;animation:fadeInUp 0.6s ease-out 0.1s backwards;text-shadow:0 2px 20px rgba(0,0,0,0.2);">Salary Insights</h1>
+    <p style="font-size:1.25rem;opacity:0.95;animation:fadeInUp 0.6s ease-out 0.2s backwards;">Get AI-powered salary insights for any position</p>
+  </div>
+</section>
+
+<div class="container" style="max-width:900px;margin:-3rem auto 3rem;padding:0 1.5rem;position:relative;z-index:10;">
+  <div style="background:#fff;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,0.15);padding:3rem;animation:fadeInUp 0.6s ease-out 0.3s backwards;">
+    
+    <!-- Info Cards -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1.5rem;margin-bottom:3rem;">
+      <div style="background:linear-gradient(135deg,#4facfe,#00f2fe);padding:1.5rem;border-radius:16px;text-align:center;color:#fff;box-shadow:0 8px 20px rgba(79,172,254,0.3);animation:fadeInUp 0.6s ease-out 0.4s backwards;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">📊</div>
+        <h3 style="font-weight:700;font-size:0.95rem;">Market Data</h3>
+      </div>
+      <div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:1.5rem;border-radius:16px;text-align:center;color:#fff;box-shadow:0 8px 20px rgba(102,126,234,0.3);animation:fadeInUp 0.6s ease-out 0.5s backwards;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">🎯</div>
+        <h3 style="font-weight:700;font-size:0.95rem;">Accurate Ranges</h3>
+      </div>
+      <div style="background:linear-gradient(135deg,#f093fb,#f5576c);padding:1.5rem;border-radius:16px;text-align:center;color:#fff;box-shadow:0 8px 20px rgba(240,147,251,0.3);animation:fadeInUp 0.6s ease-out 0.6s backwards;">
+        <div style="font-size:2rem;margin-bottom:0.5rem;">💡</div>
+        <h3 style="font-weight:700;font-size:0.95rem;">Expert Tips</h3>
+      </div>
+    </div>
+
+    <!-- Form -->
+    <form id="salary-form" style="display:grid;gap:1.5rem;">
+      <div style="animation:fadeInUp 0.6s ease-out 0.7s backwards;">
+        <label style="display:block;margin-bottom:0.75rem;font-weight:600;color:var(--gray-700);font-size:1rem;">
+          Job Title
+        </label>
+        <input type="text" id="job-title" placeholder="e.g., Software Engineer" required
+               style="width:100%;padding:1rem 1.5rem;border:2px solid var(--gray-300);border-radius:14px;font-size:1rem;transition:all 0.3s;">
+      </div>
+
+      <div style="animation:fadeInUp 0.6s ease-out 0.8s backwards;">
+        <label style="display:block;margin-bottom:0.75rem;font-weight:600;color:var(--gray-700);font-size:1rem;">
+          Location
+        </label>
+        <input type="text" id="location" placeholder="e.g., San Francisco, CA" required
+               style="width:100%;padding:1rem 1.5rem;border:2px solid var(--gray-300);border-radius:14px;font-size:1rem;transition:all 0.3s;">
+      </div>
+
+      <div style="animation:fadeInUp 0.6s ease-out 0.9s backwards;">
+        <label style="display:block;margin-bottom:0.75rem;font-weight:600;color:var(--gray-700);font-size:1rem;">
+          Years of Experience
+        </label>
+        <input type="number" id="experience" placeholder="e.g., 5" min="0" max="50" required
+               style="width:100%;padding:1rem 1.5rem;border:2px solid var(--gray-300);border-radius:14px;font-size:1rem;transition:all 0.3s;">
+      </div>
+
+      <button type="submit" id="analyze-btn"
+              style="padding:1.25rem 2rem;background:linear-gradient(135deg,#4facfe,#00f2fe);color:#fff;border:none;border-radius:14px;cursor:pointer;font-weight:600;font-size:1.1rem;transition:all 0.3s;box-shadow:0 4px 15px rgba(79,172,254,0.3);animation:fadeInUp 0.6s ease-out 1s backwards;position:relative;overflow:hidden;">
+        <span id="analyze-text">💰 Get Salary Insights</span>
+        <span id="analyze-loading" style="display:none;">
+          <span style="display:inline-block;animation:spin 1s linear infinite;">⏳</span> Analyzing...
+        </span>
+      </button>
+    </form>
+
+    <!-- Result Area -->
+    <div id="salary-result" style="margin-top:2.5rem;display:none;animation:fadeInUp 0.5s ease-out;">
+      <h2 style="font-size:1.75rem;font-weight:800;color:var(--gray-900);margin-bottom:1.5rem;">Salary Analysis</h2>
+      <div id="salary-content"
+           style="background:linear-gradient(180deg,#f8fafc 0%,#fff 100%);padding:2.5rem;border-radius:16px;white-space:pre-wrap;line-height:1.8;max-height:500px;overflow-y:auto;border:2px solid var(--gray-200);box-shadow:0 4px 12px rgba(0,0,0,0.05);"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+input:focus {
+  outline:none;
+  border-color:#00f2fe;
+  box-shadow:0 0 0 4px rgba(0,242,254,0.1);
+}
+
+#analyze-btn:hover {
+  transform:translateY(-2px);
+  box-shadow:0 6px 20px rgba(79,172,254,0.4);
+}
+
+@keyframes spin {
+  from { transform:rotate(0deg); }
+  to { transform:rotate(360deg); }
+}
+</style>
+
+<script>
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+document.getElementById('salary-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const jobTitle = document.getElementById('job-title').value;
+  const location = document.getElementById('location').value;
+  const experience = document.getElementById('experience').value;
+
+  document.getElementById('analyze-text').style.display = 'none';
+  document.getElementById('analyze-loading').style.display = 'inline';
+  document.getElementById('analyze-btn').disabled = true;
+
+  try {
+    const response = await fetch('/api/ai/salary-insights/analyze/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ 
+        job_title: jobTitle, 
+        location: location,
+        years_of_experience: parseInt(experience)
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to analyze salary');
+    }
+    
+    const data = await response.json();
+    
+    if (data.insights) {
+      document.getElementById('salary-content').textContent = data.insights;
+      document.getElementById('salary-result').style.display = 'block';
+      document.getElementById('salary-result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    } else {
+      throw new Error('No insights returned');
+    }
+  } catch (error) {
+    console.error('Error analyzing salary:', error);
+    alert('Failed to get salary insights. Please try again.\n\nError: ' + error.message);
+  } finally {
+    document.getElementById('analyze-text').style.display = 'inline';
+    document.getElementById('analyze-loading').style.display = 'none';
+    document.getElementById('analyze-btn').disabled = false;
+  }
+});
+</script>
+{% endblock %}
