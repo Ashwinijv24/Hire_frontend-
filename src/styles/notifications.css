@@ -1,0 +1,127 @@
+.notifications-container {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.notifications-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--gray-200);
+}
+
+.notifications-header h2 {
+  font-size: 1.8rem;
+  margin: 0;
+  color: var(--gray-900);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.filter-buttons button {
+  padding: 0.5rem 1rem;
+  background: var(--gray-100);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.filter-buttons button.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.notifications-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.notification-item {
+  background: var(--gray-50);
+  border: 1px solid var(--gray-200);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 1rem;
+  transition: all 0.3s;
+}
+
+.notification-item.unread {
+  background: #f0f7ff;
+  border-color: var(--primary);
+}
+
+.notification-content {
+  flex: 1;
+}
+
+.notification-content h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gray-900);
+}
+
+.notification-content p {
+  margin: 0.5rem 0;
+  color: var(--gray-700);
+  line-height: 1.5;
+}
+
+.notification-time {
+  display: block;
+  margin-top: 0.5rem;
+  color: var(--gray-500);
+  font-size: 0.85rem;
+}
+
+.btn-small {
+  padding: 0.5rem 1rem;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.btn-small:hover {
+  background: var(--secondary);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--gray-600);
+}
+
+@media (max-width: 768px) {
+  .notifications-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .notification-item {
+    flex-direction: column;
+  }
+
+  .btn-small {
+    width: 100%;
+  }
+}

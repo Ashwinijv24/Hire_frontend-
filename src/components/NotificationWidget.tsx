@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getCookie } from '../utils/api';
+import { Notification } from '../types';
+import { NotificationAPI } from '../utils/api';
 import { getTimeAgo, escapeHtml } from '../utils/helpers';
-
-interface Notification {
-  id: number;
-  title: string;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-  notification_type: string;
-}
+import '../styles/notification-widget.css';
 
 export const NotificationWidget: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -24,13 +17,8 @@ export const NotificationWidget: React.FC = () => {
 
   const updateUnreadCount = async () => {
     try {
-      const response = await fetch('/notifications/api/unread-count/', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUnreadCount(data.unread_count);
-      }
+      const count = await NotificationAPI.getUnreadCount();
+      setUnreadCount(count);
     } catch (error) {
       console.error('Error updating notification count:', error);
     }
@@ -38,13 +26,8 @@ export const NotificationWidget: React.FC = () => {
 
   const loadRecentNotifications = async () => {
     try {
-      const response = await fetch('/notifications/api/', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setNotifications(data.slice(0, 5));
-      }
+      const data = await NotificationAPI.getNotifications();
+      setNotifications(data.slice(0, 5));
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
@@ -70,7 +53,7 @@ export const NotificationWidget: React.FC = () => {
         <div className="notification-dropdown">
           <div className="dropdown-header">
             <h3>Notifications</h3>
-            <a href="/notifications/" className="view-all">View All</a>
+            <a href="/notifications" className="view-all">View All</a>
           </div>
           <div className="dropdown-content">
             {notifications.length === 0 ? (
