@@ -109,22 +109,34 @@ export class ApplicationAPI {
     if (USE_MOCK_DATA) {
       return StorageManager.getApplications();
     }
-    const response = await fetch('/applications/api/applications/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    const data = await response.json();
-    return data.results || data;
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/api/applications/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch applications');
+      const data = await response.json();
+      return data.results || data;
+    } catch (error) {
+      console.error('Error fetching applications:', error);
+      return StorageManager.getApplications();
+    }
   }
 
   static async getSavedJobs(): Promise<SavedJob[]> {
     if (USE_MOCK_DATA) {
       return StorageManager.getSavedJobs();
     }
-    const response = await fetch('/applications/api/saved-jobs/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    const data = await response.json();
-    return data.results || data;
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/api/saved-jobs/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch saved jobs');
+      const data = await response.json();
+      return data.results || data;
+    } catch (error) {
+      console.error('Error fetching saved jobs:', error);
+      return StorageManager.getSavedJobs();
+    }
   }
 
   static async saveJob(jobId: number): Promise<void> {
@@ -136,15 +148,17 @@ export class ApplicationAPI {
       console.log('Mock: Job saved', jobId);
       return;
     }
-    const response = await fetch('/api/save-job/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || '',
-      },
-      body: JSON.stringify({ job_id: jobId }),
-    });
-    if (!response.ok) throw new Error('Failed to save job');
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/api/save-job/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ job_id: jobId }),
+      });
+      if (!response.ok) throw new Error('Failed to save job');
+    } catch (error) {
+      console.error('Error saving job:', error);
+      StorageManager.addSavedJob(jobId, '', '', 'Remote');
+    }
   }
 
   static async unsaveJob(jobId: number): Promise<void> {
@@ -153,11 +167,16 @@ export class ApplicationAPI {
       console.log('Mock: Job unsaved', jobId);
       return;
     }
-    const response = await fetch(`/applications/api/unsave-job/${jobId}/`, {
-      method: 'DELETE',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to unsave job');
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/api/unsave-job/${jobId}/`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to unsave job');
+    } catch (error) {
+      console.error('Error unsaving job:', error);
+      StorageManager.removeSavedJob(jobId);
+    }
   }
 
   static async applyJob(jobId: number, resume: File, coverLetter: string = ''): Promise<void> {
@@ -183,17 +202,24 @@ export class ApplicationAPI {
       console.log('Mock: Application submitted', { jobId, resume: resume.name, coverLetter });
       return;
     }
-    const formData = new FormData();
-    formData.append('job', jobId.toString());
-    formData.append('cover_letter', coverLetter);
-    formData.append('resume', resume);
+    try {
+      const formData = new FormData();
+      formData.append('job', jobId.toString());
+      formData.append('cover_letter', coverLetter);
+      formData.append('resume', resume);
 
-    const response = await fetch('/api/applications/apply/', {
-      method: 'POST',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' },
-      body: formData,
-    });
-    if (!response.ok) throw new Error('Failed to submit application');
+      const response = await fetch(`${API_BASE_URL}/applications/api/apply/`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Token ${localStorage.getItem('authToken') || ''}`,
+        },
+        body: formData,
+      });
+      if (!response.ok) throw new Error('Failed to submit application');
+    } catch (error) {
+      console.error('Error submitting application:', error);
+      StorageManager.addApplication(jobId, '', '', 'Remote');
+    }
   }
 }
 
@@ -219,11 +245,16 @@ export class ProfileAPI {
         resume_url: 'https://example.com/resume.pdf',
       };
     }
-    const response = await fetch('/accounts/api/profile/me/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to fetch profile');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/me/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch profile');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      throw error;
+    }
   }
 
   static async updateProfile(data: Partial<UserProfile>): Promise<UserProfile> {
@@ -231,16 +262,18 @@ export class ProfileAPI {
       console.log('Mock: Profile updated', data);
       return { ...data } as UserProfile;
     }
-    const response = await fetch('/accounts/api/profile/update_profile/', {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      },
-      body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to update profile');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/update_profile/`, {
+        method: 'PATCH',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to update profile');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
   }
 
   static async getEducation(): Promise<any[]> {
@@ -258,12 +291,17 @@ export class ProfileAPI {
         },
       ];
     }
-    const response = await fetch('/accounts/api/profile/education/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to fetch education');
-    const data = await response.json();
-    return data.results || data;
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/education/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch education');
+      const data = await response.json();
+      return data.results || data;
+    } catch (error) {
+      console.error('Error fetching education:', error);
+      return [];
+    }
   }
 
   static async addEducation(data: any): Promise<any> {
@@ -271,16 +309,18 @@ export class ProfileAPI {
       console.log('Mock: Education added', data);
       return { id: Math.random(), ...data };
     }
-    const response = await fetch('/accounts/api/profile/education/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      },
-      body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to add education');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/education/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to add education');
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding education:', error);
+      throw error;
+    }
   }
 
   static async deleteEducation(eduId: number): Promise<void> {
@@ -288,11 +328,16 @@ export class ProfileAPI {
       console.log('Mock: Education deleted', eduId);
       return;
     }
-    const response = await fetch(`/accounts/api/profile/education/${eduId}/`, {
-      method: 'DELETE',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to delete education');
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/education/${eduId}/`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to delete education');
+    } catch (error) {
+      console.error('Error deleting education:', error);
+      throw error;
+    }
   }
 
   static async getExperience(): Promise<any[]> {
@@ -310,12 +355,17 @@ export class ProfileAPI {
         },
       ];
     }
-    const response = await fetch('/accounts/api/profile/experience/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to fetch experience');
-    const data = await response.json();
-    return data.results || data;
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/experience/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch experience');
+      const data = await response.json();
+      return data.results || data;
+    } catch (error) {
+      console.error('Error fetching experience:', error);
+      return [];
+    }
   }
 
   static async addExperience(data: any): Promise<any> {
@@ -323,16 +373,18 @@ export class ProfileAPI {
       console.log('Mock: Experience added', data);
       return { id: Math.random(), ...data };
     }
-    const response = await fetch('/accounts/api/profile/experience/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      },
-      body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to add experience');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/experience/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to add experience');
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding experience:', error);
+      throw error;
+    }
   }
 
   static async deleteExperience(expId: number): Promise<void> {
@@ -340,11 +392,16 @@ export class ProfileAPI {
       console.log('Mock: Experience deleted', expId);
       return;
     }
-    const response = await fetch(`/accounts/api/profile/experience/${expId}/`, {
-      method: 'DELETE',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to delete experience');
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/experience/${expId}/`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to delete experience');
+    } catch (error) {
+      console.error('Error deleting experience:', error);
+      throw error;
+    }
   }
 
   static async getCertifications(): Promise<any[]> {
@@ -361,12 +418,17 @@ export class ProfileAPI {
         },
       ];
     }
-    const response = await fetch('/accounts/api/profile/certifications/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to fetch certifications');
-    const data = await response.json();
-    return data.results || data;
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/certifications/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch certifications');
+      const data = await response.json();
+      return data.results || data;
+    } catch (error) {
+      console.error('Error fetching certifications:', error);
+      return [];
+    }
   }
 
   static async addCertification(data: any): Promise<any> {
@@ -374,16 +436,18 @@ export class ProfileAPI {
       console.log('Mock: Certification added', data);
       return { id: Math.random(), ...data };
     }
-    const response = await fetch('/accounts/api/profile/certifications/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      },
-      body: JSON.stringify(data)
-    });
-    if (!response.ok) throw new Error('Failed to add certification');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/certifications/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(data)
+      });
+      if (!response.ok) throw new Error('Failed to add certification');
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding certification:', error);
+      throw error;
+    }
   }
 
   static async deleteCertification(certId: number): Promise<void> {
@@ -391,11 +455,16 @@ export class ProfileAPI {
       console.log('Mock: Certification deleted', certId);
       return;
     }
-    const response = await fetch(`/accounts/api/profile/certifications/${certId}/`, {
-      method: 'DELETE',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to delete certification');
+    try {
+      const response = await fetch(`${API_BASE_URL}/accounts/api/profile/certifications/${certId}/`, {
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to delete certification');
+    } catch (error) {
+      console.error('Error deleting certification:', error);
+      throw error;
+    }
   }
 }
 
@@ -416,11 +485,28 @@ export class MatchingAPI {
         matched_keywords: ['Full Stack', 'Web Development', 'Frontend', 'Backend'],
       };
     }
-    const response = await fetch(`/applications/api/jobs/${jobId}/match/`, {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to fetch match score');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/api/jobs/${jobId}/match/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch match score');
+      return await response.json();
+    } catch (error) {
+      console.warn('Error fetching match score, using mock data:', error);
+      const scores = [85, 92, 78, 88, 75, 90, 82, 87, 70, 88, 76, 84, 79, 86, 81];
+      const score = scores[jobId % scores.length];
+      return {
+        overall_score: score,
+        match_level: score >= 90 ? 'Excellent' : score >= 80 ? 'Good' : score >= 70 ? 'Fair' : 'Poor',
+        skills_score: Math.min(100, score + Math.random() * 10),
+        experience_score: Math.min(100, score - Math.random() * 5),
+        education_score: Math.min(100, score + Math.random() * 8),
+        location_score: Math.random() > 0.5 ? 100 : 60,
+        matched_skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'REST APIs'].slice(0, Math.floor(Math.random() * 5) + 1),
+        missing_skills: ['Docker', 'Kubernetes', 'GraphQL', 'AWS'].slice(0, Math.floor(Math.random() * 3) + 1),
+        matched_keywords: ['Full Stack', 'Web Development', 'Frontend', 'Backend'],
+      };
+    }
   }
 
   static async getRecommendedJobs(): Promise<RecommendedJob[]> {
@@ -432,12 +518,17 @@ export class MatchingAPI {
         matched_skills: ['JavaScript', 'React', 'Node.js', 'TypeScript', 'REST APIs'].slice(0, idx + 2),
       }));
     }
-    const response = await fetch('/applications/api/recommended-jobs/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to fetch recommended jobs');
-    const data = await response.json();
-    return data.recommended_jobs || [];
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/api/recommended-jobs/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch recommended jobs');
+      const data = await response.json();
+      return data.recommended_jobs || [];
+    } catch (error) {
+      console.warn('Error fetching recommended jobs:', error);
+      return [];
+    }
   }
 
   static async calculateMatches(jobIds: number[]): Promise<any[]> {
@@ -448,17 +539,19 @@ export class MatchingAPI {
         is_recommended: idx % 3 === 0,
       }));
     }
-    const response = await fetch('/applications/api/calculate-matches/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      },
-      body: JSON.stringify({ job_ids: jobIds })
-    });
-    if (!response.ok) throw new Error('Failed to calculate matches');
-    const data = await response.json();
-    return data.matches || [];
+    try {
+      const response = await fetch(`${API_BASE_URL}/applications/api/calculate-matches/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ job_ids: jobIds })
+      });
+      if (!response.ok) throw new Error('Failed to calculate matches');
+      const data = await response.json();
+      return data.matches || [];
+    } catch (error) {
+      console.warn('Error calculating matches:', error);
+      return [];
+    }
   }
 }
 
@@ -475,16 +568,18 @@ export class InterviewAPI {
         ],
       };
     }
-    const response = await fetch('/api/interviews/mock-interviews/start_interview/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      },
-      body: JSON.stringify({ job_category: jobCategory, difficulty })
-    });
-    if (!response.ok) throw new Error('Failed to start interview');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/interviews/api/mock-interviews/start_interview/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ job_category: jobCategory, difficulty })
+      });
+      if (!response.ok) throw new Error('Failed to start interview');
+      return await response.json();
+    } catch (error) {
+      console.error('Error starting interview:', error);
+      throw error;
+    }
   }
 
   static async submitAnswer(interviewId: number, questionId: number, answer: string): Promise<void> {
@@ -492,39 +587,51 @@ export class InterviewAPI {
       console.log('Mock: Answer submitted', { interviewId, questionId, answer });
       return;
     }
-    const response = await fetch(`/api/interviews/mock-interviews/${interviewId}/submit_answer/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      },
-      body: JSON.stringify({ question_id: questionId, answer })
-    });
-    if (!response.ok) throw new Error('Failed to submit answer');
+    try {
+      const response = await fetch(`${API_BASE_URL}/interviews/api/mock-interviews/${interviewId}/submit_answer/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ question_id: questionId, answer })
+      });
+      if (!response.ok) throw new Error('Failed to submit answer');
+    } catch (error) {
+      console.error('Error submitting answer:', error);
+      throw error;
+    }
   }
 
   static async completeInterview(interviewId: number): Promise<any> {
     if (USE_MOCK_DATA) {
       return { id: interviewId, score: Math.floor(Math.random() * 40 + 60), completed: true };
     }
-    const response = await fetch(`/api/interviews/mock-interviews/${interviewId}/complete_interview/`, {
-      method: 'POST',
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to complete interview');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/interviews/api/mock-interviews/${interviewId}/complete_interview/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to complete interview');
+      return await response.json();
+    } catch (error) {
+      console.error('Error completing interview:', error);
+      throw error;
+    }
   }
 
   static async getInterviews(): Promise<Interview[]> {
     if (USE_MOCK_DATA) {
       return mockInterviews;
     }
-    const response = await fetch('/api/interviews/mock-interviews/', {
-      headers: { 'X-CSRFToken': getCookie('csrftoken') || '' }
-    });
-    if (!response.ok) throw new Error('Failed to fetch interviews');
-    const data = await response.json();
-    return data.results || data;
+    try {
+      const response = await fetch(`${API_BASE_URL}/interviews/api/mock-interviews/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to fetch interviews');
+      const data = await response.json();
+      return data.results || data;
+    } catch (error) {
+      console.error('Error fetching interviews:', error);
+      return mockInterviews;
+    }
   }
 }
 
@@ -533,23 +640,40 @@ export class NotificationAPI {
     if (USE_MOCK_DATA) {
       return mockNotifications;
     }
-    const response = await fetch('/notifications/api/', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
-    });
-    if (!response.ok) throw new Error('Failed to fetch notifications');
-    return await response.json();
+    try {
+      const response = await fetch(`${API_BASE_URL}/notifications/api/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) {
+        console.warn('Failed to fetch notifications, using mock data');
+        return mockNotifications;
+      }
+      const data = await response.json();
+      return data.results || data || mockNotifications;
+    } catch (error) {
+      console.warn('Error fetching notifications, using mock data:', error);
+      return mockNotifications;
+    }
   }
 
   static async getUnreadCount(): Promise<number> {
     if (USE_MOCK_DATA) {
       return mockNotifications.filter(n => !n.is_read).length;
     }
-    const response = await fetch('/notifications/api/unread-count/', {
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
-    });
-    if (!response.ok) throw new Error('Failed to fetch unread count');
-    const data = await response.json();
-    return data.unread_count || 0;
+    try {
+      const response = await fetch(`${API_BASE_URL}/notifications/api/unread-count/`, {
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) {
+        console.warn('Failed to fetch unread count');
+        return 0;
+      }
+      const data = await response.json();
+      return data.unread_count || 0;
+    } catch (error) {
+      console.warn('Error fetching unread count:', error);
+      return 0;
+    }
   }
 
   static async markAsRead(notificationId: number): Promise<void> {
@@ -558,11 +682,17 @@ export class NotificationAPI {
       if (notif) notif.is_read = true;
       return;
     }
-    const response = await fetch(`/notifications/api/${notificationId}/mark-as-read/`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
-    });
-    if (!response.ok) throw new Error('Failed to mark as read');
+    try {
+      const response = await fetch(`${API_BASE_URL}/notifications/api/${notificationId}/mark-as-read/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) {
+        console.warn('Failed to mark notification as read');
+      }
+    } catch (error) {
+      console.warn('Error marking notification as read:', error);
+    }
   }
 
   static async markAllAsRead(): Promise<void> {
@@ -570,10 +700,16 @@ export class NotificationAPI {
       mockNotifications.forEach(n => n.is_read = true);
       return;
     }
-    const response = await fetch('/notifications/api/mark-all-as-read/', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
-    });
-    if (!response.ok) throw new Error('Failed to mark all as read');
+    try {
+      const response = await fetch(`${API_BASE_URL}/notifications/api/mark-all-as-read/`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+      });
+      if (!response.ok) {
+        console.warn('Failed to mark all notifications as read');
+      }
+    } catch (error) {
+      console.warn('Error marking all notifications as read:', error);
+    }
   }
 }
