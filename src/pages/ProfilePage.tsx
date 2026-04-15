@@ -10,7 +10,7 @@ export const ProfilePage: React.FC = () => {
   const [experience, setExperience] = useState<Experience[]>([]);
   const [certifications, setCertifications] = useState<Certification[]>([]);
   const [editMode, setEditMode] = useState(false);
-  const [activeTab, setActiveTab] = useState<'profile' | 'education' | 'experience' | 'certifications'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'education' | 'experience' | 'certifications' | 'resume'>('profile');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -178,6 +178,12 @@ export const ProfilePage: React.FC = () => {
         >
           Certifications
         </button>
+        <button 
+          className={`tab-btn ${activeTab === 'resume' ? 'active' : ''}`}
+          onClick={() => setActiveTab('resume')}
+        >
+          Resume
+        </button>
       </div>
 
       {activeTab === 'profile' && (
@@ -228,6 +234,36 @@ export const ProfilePage: React.FC = () => {
               />
             </div>
 
+            <div className="form-group">
+              <label>Portfolio URL</label>
+              <input
+                type="url"
+                placeholder="https://yourportfolio.com"
+                value={profile.portfolio_url || ''}
+                onChange={(e) => setProfile({ ...profile, portfolio_url: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>LinkedIn URL</label>
+              <input
+                type="url"
+                placeholder="https://linkedin.com/in/yourprofile"
+                value={profile.linkedin_url || ''}
+                onChange={(e) => setProfile({ ...profile, linkedin_url: e.target.value })}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>GitHub URL</label>
+              <input
+                type="url"
+                placeholder="https://github.com/yourprofile"
+                value={profile.github_url || ''}
+                onChange={(e) => setProfile({ ...profile, github_url: e.target.value })}
+              />
+            </div>
+
             <button type="submit" className="btn-primary">Save Changes</button>
           </form>
         ) : (
@@ -247,11 +283,37 @@ export const ProfilePage: React.FC = () => {
             </div>
 
             <div className="profile-section">
-              <h3>Contact</h3>
+              <h3>Contact & Links</h3>
               <p>Email: {profile.email}</p>
               {profile.phone && <p>Phone: {profile.phone}</p>}
-              {profile.linkedin_url && <p><a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">LinkedIn</a></p>}
-              {profile.github_url && <p><a href={profile.github_url} target="_blank" rel="noopener noreferrer">GitHub</a></p>}
+              {profile.portfolio_url && (
+                <p>
+                  <a href={profile.portfolio_url} target="_blank" rel="noopener noreferrer">
+                    🌐 Portfolio
+                  </a>
+                </p>
+              )}
+              {profile.linkedin_url && (
+                <p>
+                  <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer">
+                    💼 LinkedIn
+                  </a>
+                </p>
+              )}
+              {profile.github_url && (
+                <p>
+                  <a href={profile.github_url} target="_blank" rel="noopener noreferrer">
+                    🐙 GitHub
+                  </a>
+                </p>
+              )}
+              {profile.resume_url && (
+                <p>
+                  <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                    📄 Download Resume
+                  </a>
+                </p>
+              )}
             </div>
           </div>
         )
@@ -311,6 +373,24 @@ export const ProfilePage: React.FC = () => {
             ))}
           </div>
           <CertificationForm onAdd={handleAddCertification} />
+        </div>
+      )}
+
+      {activeTab === 'resume' && (
+        <div className="profile-section">
+          <h3>Resume & Documents</h3>
+          <div className="resume-section">
+            {profile.resume_url ? (
+              <div className="resume-card">
+                <p>📄 Resume uploaded</p>
+                <a href={profile.resume_url} target="_blank" rel="noopener noreferrer" className="btn-primary">
+                  Download Resume
+                </a>
+              </div>
+            ) : (
+              <p className="no-resume">No resume uploaded yet</p>
+            )}
+          </div>
         </div>
       )}
     </div>

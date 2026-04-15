@@ -6,7 +6,9 @@ import { MockInterview } from './pages/MockInterview';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotificationCenter } from './pages/NotificationCenter';
 import { JobMatching } from './pages/JobMatching';
-import { NotificationWidget } from './components/NotificationWidget';
+import { AuthPage } from './pages/AuthPage';
+import { NotificationWidgetNew } from './components/NotificationWidgetNew';
+import { AuthAPI } from './utils/authApi';
 import './App.css';
 
 type Page = 'jobs' | 'job-detail' | 'dashboard' | 'interview' | 'profile' | 'notifications' | 'matching';
@@ -14,6 +16,17 @@ type Page = 'jobs' | 'job-detail' | 'dashboard' | 'interview' | 'profile' | 'not
 export const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>('jobs');
   const [selectedJobId, setSelectedJobId] = useState<number | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const isAuth = AuthAPI.isAuthenticated();
+      setIsAuthenticated(isAuth);
+      setLoading(false);
+    };
+    checkAuth();
+  }, []);
 
   const handleJobSelect = (jobId: number) => {
     setSelectedJobId(jobId);
@@ -24,6 +37,25 @@ export const App: React.FC = () => {
     setCurrentPage('jobs');
     setSelectedJobId(null);
   };
+
+  const handleAuthSuccess = () => {
+    setIsAuthenticated(true);
+    setCurrentPage('jobs');
+  };
+
+  const handleLogout = async () => {
+    await AuthAPI.logout();
+    setIsAuthenticated(false);
+    setCurrentPage('jobs');
+  };
+
+  if (loading) {
+    return <div className="loading">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <AuthPage onAuthSuccess={handleAuthSuccess} />;
+  }
 
   return (
     <div className="app">
@@ -49,7 +81,12 @@ export const App: React.FC = () => {
               Notifications
             </button>
           </nav>
-          <NotificationWidget />
+          <div className="header-actions">
+            <NotificationWidgetNew />
+            <button onClick={handleLogout} className="btn-logout">
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 

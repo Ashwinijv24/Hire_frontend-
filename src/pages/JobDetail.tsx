@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Job, MatchScore, Application } from '../types';
 import { JobAPI, ApplicationAPI, MatchingAPI } from '../utils/api';
 import { getScoreColor, validateResumeFile, showToast } from '../utils/helpers';
+import { StorageManager } from '../utils/storage';
 import '../styles/jobs.css';
 
 interface JobDetailProps {
@@ -46,13 +47,11 @@ export const JobDetail: React.FC<JobDetailProps> = ({ jobId, onBack }) => {
   };
 
   const checkApplicationStatus = async () => {
-    try {
-      const applications = await ApplicationAPI.getApplications();
-      const applied = applications.some(app => app.job.id === jobId);
-      setHasApplied(applied);
-    } catch (error) {
-      console.error('Error checking application status:', error);
-    }
+    const applied = StorageManager.hasApplied(jobId);
+    setHasApplied(applied);
+    
+    const saved = StorageManager.isJobSaved(jobId);
+    setIsSaved(saved);
   };
 
   const handleResumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,19 +141,19 @@ export const JobDetail: React.FC<JobDetailProps> = ({ jobId, onBack }) => {
             <div className="score-breakdown">
               <div className="score-item">
                 <span>Skills</span>
-                <strong>{matchScore.skills_score}%</strong>
+                <strong>{Math.round(matchScore.skills_score)}%</strong>
               </div>
               <div className="score-item">
                 <span>Experience</span>
-                <strong>{matchScore.experience_score}%</strong>
+                <strong>{Math.round(matchScore.experience_score)}%</strong>
               </div>
               <div className="score-item">
                 <span>Education</span>
-                <strong>{matchScore.education_score}%</strong>
+                <strong>{Math.round(matchScore.education_score)}%</strong>
               </div>
               <div className="score-item">
                 <span>Location</span>
-                <strong>{matchScore.location_score}%</strong>
+                <strong>{Math.round(matchScore.location_score)}%</strong>
               </div>
             </div>
           </div>
