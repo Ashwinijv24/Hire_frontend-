@@ -2,7 +2,20 @@ import { Job, Application, SavedJob, UserProfile, Notification, Interview, Match
 import { mockJobs, mockNotifications, mockInterviews } from './mockData';
 import { StorageManager } from './storage';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// Get API URL from environment or use Render backend
+const API_BASE_URL = (() => {
+  const envUrl = import.meta.env.VITE_API_URL;
+  if (envUrl) return envUrl;
+  
+  // If running on localhost, use Render backend
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    return 'https://hireconnect-9nxv.onrender.com';
+  }
+  
+  // Default to Render backend
+  return 'https://hireconnect-9nxv.onrender.com';
+})();
+
 const USE_MOCK_DATA = false; // Set to false when backend is ready
 
 function getAuthHeaders(): HeadersInit {
